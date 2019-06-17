@@ -39,15 +39,43 @@ class CanvasDrawer {
     }
 
     /**
-     * Clears canvas and buffer
+     * Clears buffer
      */
-    clear() {
-        this._context.clearRect(0, 0, this._canvasWidth, this._canvasHeight);
+    clearBuffer() {
         this._initBuffer(this._context, this._canvasWidth, this._canvasHeight);
+        this._context.clearRect(0, 0, this._canvasWidth, this._canvasHeight);
     }
-
 }
 
 (function () {
+    function drawMarbelSet(canvasDrawer, width, height, max_iterations) {
+        canvasDrawer.clearBuffer();
+
+        for (let row = 0; row < height; row++) {
+            for (let col = 0; col < width; col++) {
+                let c_re = (col - width/2.0)*4.0/width;
+                let c_im = (row - height/2.0)*4.0/width;
+                let x = 0, y = 0;
+                let iteration = 0;
+                while (x*x+y*y <= 4 && iteration < max_iterations) {
+                    let x_new = x*x - y*y + c_re;
+                    y = 2*x*y + c_im;
+                    x = x_new;
+                    iteration++;
+                }
+
+                const color = (iteration / max_iterations) * 255;
+                canvasDrawer.drawPixel(col, row, color, 0, 0)
+            }
+        }
+        canvasDrawer.renderCanvas();
+    }
+
     const canvasDrawer = new CanvasDrawer('canvas');
+    const max_iterations = 10;
+    const width = 800;
+    const height = 400;
+
+    drawMarbelSet(canvasDrawer, width, height, max_iterations);
+
 })();
